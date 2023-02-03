@@ -9,11 +9,15 @@ import (
 )
 
 func main() {
-	// initial database
+	// INITIAL DATABASE
 	database.DatabaseInit()
+
+	// RUN MIGRATION
 	migration.RunMigration()
+
 	app := fiber.New()
 
+	// INITIAL ROUTE
 	route.RouteInit(app)
 
 	app.Listen(":3000")
