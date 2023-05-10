@@ -117,5 +117,72 @@ func UserHandlerGetByID(c *fiber.Ctx) error {
 		"message": "success",
 		"data":    userResponse,
 	})
+}
+
+func UserHandlerUpdate(c *fiber.Ctx) error {
+
+	userRequest := new(request.UserUpdateRequest)
+	if err := c.BodyParser(userRequest); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "bad request",
+		})
+	}
+
+	// inisiasi user ke dalam struct
+	var user entity.User
+	// ambil id
+	userID := c.Params("ID")
+	// cek data di database
+	err := database.DB.First(&user, "ID = ?", userID).Error
+	// response error ketika  data tidak di temukan
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "data not found",
+		})
+	}
+
+	// update user data
+	if userRequest.Name != "" {
+		user.Name = userRequest.Name
+	}
+	user.Address = userRequest.Address
+	user.Phone = userRequest.Phone
+
+	errUpdate := database.DB.Save(&user).Error
+
+	if errUpdate != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message": "internal server error",
+		})
+	}
+
+	// response success
+	return c.JSON(fiber.Map{
+		"message": "success",
+		"data":    user,
+	})
+}
+
+func UserHandlerDelete(c *fiber.Ctx) error {
+	userID := c.Params("ID")
+
+	var user entity.User
+
+	err := database.DB.Debug().First(&user, "ID = ? ", userID).Error
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "user not foudn",
+		})
+	}
+
+	errDelete := database.DB.Debug().Delete(&user).Error
+	if errDelete != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"Message": "internal server error",
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": "user was deleted",
+	})
 
 }
