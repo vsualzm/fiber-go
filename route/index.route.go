@@ -7,5 +7,11 @@ import (
 )
 
 func RouteInit(r *fiber.App) {
-	r.Get("/user", handler.UserHandlerGetAll)
+	// cek handler ini
+	r.Get("/", handler.UserHandlerRead)
+
+	// route
+	r.Get("/users", handler.UserHandlerGetAll)
+	r.Post("/users", handler.UserHandlerCreate)
+
 }

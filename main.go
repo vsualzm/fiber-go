@@ -4,21 +4,22 @@ import (
 	"fiber-go/database"
 	"fiber-go/database/migration"
 	"fiber-go/route"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	// INITIAL DATABASE
-	database.DatabaseInit()
 
-	// RUN MIGRATION
+	// INISIASI DATABASE
+	database.DatabaseInit()
 	migration.RunMigration()
 
 	app := fiber.New()
 
-	// INITIAL ROUTE
+	// INISIASI ROUTE
 	route.RouteInit(app)
 
-	app.Listen(":3000")
+	// port API
+	log.Fatal(app.Listen(":1234"))
 }
