@@ -4,6 +4,7 @@ import (
 	"fiber-go/database"
 	"fiber-go/model/entity"
 	"fiber-go/model/request"
+	"fiber-go/model/response"
 	"log"
 
 	"github.com/go-playground/validator/v10"
@@ -17,6 +18,7 @@ func UserHandlerRead(c *fiber.Ctx) error {
 	})
 }
 
+// GETALL
 func UserHandlerGetAll(c *fiber.Ctx) error {
 	var users []entity.User
 
@@ -32,9 +34,13 @@ func UserHandlerGetAll(c *fiber.Ctx) error {
 
 }
 
+// POST
 func UserHandlerCreate(c *fiber.Ctx) error {
+
+	// membuat request baru
 	user := new(request.UserCreateRequest)
 
+	// memasukan ke bodyparser
 	if err := c.BodyParser(user); err != nil {
 		return err
 	}
@@ -49,6 +55,7 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 		})
 	}
 
+	// mendapatkan yg user masukan
 	newUser := entity.User{
 		Name:    user.Name,
 		Email:   user.Email,
@@ -56,8 +63,10 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 		Phone:   user.Phone,
 	}
 
+	// memasukan data ke dalam database
 	errCreateUser := database.DB.Debug().Create(&newUser).Error
 
+	// jika gagal berikan post ini
 	if errCreateUser != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"code":    500,
@@ -65,9 +74,48 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 		})
 	}
 
+	// jika status succes kembalikan status ini
 	return c.Status(200).JSON(fiber.Map{
 		"message": "success",
 		"data":    newUser,
 		"code":    200,
 	})
+
+}
+
+func UserHandlerGetByID(c *fiber.Ctx) error {
+
+	// ambil id
+	userID := c.Params("ID")
+
+	// inisiasi user ke dalam struct
+	var user entity.User
+
+	// cari di database id yg sama
+	err := database.DB.First(&user, "ID = ?", userID).Error
+
+	// response error ketika  data tidak di temukan
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "data not found",
+		})
+	}
+
+	// mapping response suapaya response di kembalikan tidak ada nilai delete
+	userResponse := response.UserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Address:   user.Address,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdateAt:  user.UpdateAt,
+	}
+
+	// response success
+	return c.JSON(fiber.Map{
+		"message": "success",
+		"data":    userResponse,
+	})
+
 }
