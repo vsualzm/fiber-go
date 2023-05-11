@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// cek rest api
 func UserHandlerRead(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "berhasil mendapatkan api",
@@ -152,6 +153,57 @@ func UserHandlerUpdate(c *fiber.Ctx) error {
 
 	if errUpdate != nil {
 		return c.Status(500).JSON(fiber.Map{
+			"message": "internal server error",
+		})
+	}
+
+	// response success
+	return c.JSON(fiber.Map{
+		"message": "success",
+		"data":    user,
+	})
+}
+
+func UserHandlerUpdateEmail(c *fiber.Ctx) error {
+
+	userRequest := new(request.UserEmailRequest)
+	if err := c.BodyParser(userRequest); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "bad request",
+		})
+	}
+
+	// inisiasi user ke dalam struct
+	var user entity.User
+	var isEmailUserExist entity.User
+
+	// ambil id
+	userID := c.Params("ID")
+
+	// cek Availbel user
+	err := database.DB.First(&user, "ID = ?", userID).Error
+	// response error ketika  data tidak di temukan
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "data not found",
+		})
+	}
+
+	// cek Availbel Email
+	errCheckEmail := database.DB.First(&isEmailUserExist, "email = ?", userRequest.Email).Error
+
+	if errCheckEmail == nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "Email alredy to use",
+		})
+	}
+
+	// update user data
+	user.Email = userRequest.Email
+	errUpdate := database.DB.Save(&user).Error
+
+	if errUpdate != nil {
+		return c.Status(402).JSON(fiber.Map{
 			"message": "internal server error",
 		})
 	}

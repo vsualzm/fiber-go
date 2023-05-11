@@ -19,6 +19,7 @@ func DatabaseInit() {
 	dsn := MYSQL
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
+	// persan err
 	if err != nil {
 		panic("Tidak bisa terhubung ke DATABASE")
 	}

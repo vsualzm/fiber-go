@@ -14,6 +14,6 @@ type UserUpdateRequest struct {
 	Phone   string `json:"phone"`
 }
 
-// type UserEmailRequest struct {
-// 	Email string `json:"email" validate:"required"`
-// }
+type UserEmailRequest struct {
+	Email string `json:"email" validate:"required"`
+}
