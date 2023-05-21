@@ -5,6 +5,7 @@ import (
 	"fiber-go/model/entity"
 	"fiber-go/model/request"
 	"fiber-go/model/response"
+	"fiber-go/utils"
 	"log"
 
 	"github.com/go-playground/validator/v10"
@@ -64,13 +65,25 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 		Phone:   user.Phone,
 	}
 
+	// hashing password
+
+	hashedPassword, err := utils.HashingPassword(user.Password)
+
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "internal server error",
+		})
+	}
+
+	newUser.Password = hashedPassword
+
 	// memasukan data ke dalam database
 	errCreateUser := database.DB.Debug().Create(&newUser).Error
 
 	// jika gagal berikan post ini
 	if errCreateUser != nil {
 		return c.Status(500).JSON(fiber.Map{
-			"code":    500,
 			"message": "failed to post data",
 		})
 	}
@@ -166,6 +179,7 @@ func UserHandlerUpdate(c *fiber.Ctx) error {
 
 func UserHandlerUpdateEmail(c *fiber.Ctx) error {
 
+	// ini untuk update email
 	userRequest := new(request.UserEmailRequest)
 	if err := c.BodyParser(userRequest); err != nil {
 		return c.Status(400).JSON(fiber.Map{
@@ -216,10 +230,13 @@ func UserHandlerUpdateEmail(c *fiber.Ctx) error {
 }
 
 func UserHandlerDelete(c *fiber.Ctx) error {
+	// dapatkan ID
 	userID := c.Params("ID")
 
+	// beri variabel user
 	var user entity.User
 
+	// cari ID yg sama
 	err := database.DB.Debug().First(&user, "ID = ? ", userID).Error
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
@@ -227,12 +244,15 @@ func UserHandlerDelete(c *fiber.Ctx) error {
 		})
 	}
 
+	// ambil ke database dan delete id yg di ingin kan
 	errDelete := database.DB.Debug().Delete(&user).Error
+
 	if errDelete != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"Message": "internal server error",
 		})
 	}
+
 	return c.JSON(fiber.Map{
 		"message": "user was deleted",
 	})
