@@ -15,7 +15,8 @@ func Auth(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := utils.VerifyToken(token)
+	// _, err := utils.VerifyToken(token)
+	claims, err := utils.DecodeToken(token)
 
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -23,6 +24,18 @@ func Auth(c *fiber.Ctx) error {
 		})
 	}
 
+	role := claims["role"].(string)
+	if role != "admin" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Forbiden Access",
+		})
+	}
+
+	// untuk logger aja
+	c.Locals("userInfo", claims)
+	// c.Locals("role", claims["role"])
+
+	// ketika pengen masukin header biasa aja dengan token ini
 	// if token != "secret" {
 	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 	// 		"message": "unatheticated",

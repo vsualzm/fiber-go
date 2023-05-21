@@ -22,6 +22,11 @@ func UserHandlerRead(c *fiber.Ctx) error {
 
 // GETALL
 func UserHandlerGetAll(c *fiber.Ctx) error {
+
+	// generate cek info login user admin
+	userInfo := c.Locals("userInfo")
+	log.Println("user info data:", userInfo)
+
 	var users []entity.User
 
 	result := database.DB.Debug().Find(&users)
