@@ -4,6 +4,7 @@ import (
 	"fiber-go/config"
 	"fiber-go/handler"
 	"fiber-go/middleware"
+	"fiber-go/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,5 +26,13 @@ func RouteInit(r *fiber.App) {
 	r.Put("/users/:id", handler.UserHandlerUpdate)
 	r.Put("/users/:id/email-update", handler.UserHandlerUpdateEmail)
 	r.Delete("/users/:id", handler.UserHandlerDelete)
+
+	// Route - CRUD book
+	// middleware.Auth
+	r.Post("/book", utils.HandleSingleFile, handler.BookHandlerCreate)
+	r.Get("/book", handler.GetAllBook)
+	// r.Get("/book/:id", handler.UserHandlerGetByID)
+	// r.Put("/book/:id", handler.UserHandlerUpdate)
+	// r.Delete("/book/:id", handler.UserHandlerDelete)
 
 }

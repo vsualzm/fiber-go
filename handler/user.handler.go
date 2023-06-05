@@ -7,18 +7,11 @@ import (
 	"fiber-go/model/response"
 	"fiber-go/utils"
 	"log"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
-
-// cek rest api
-func UserHandlerRead(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"message": "berhasil mendapatkan api",
-		"code":    200,
-	})
-}
 
 // GETALL
 func UserHandlerGetAll(c *fiber.Ctx) error {
@@ -64,10 +57,11 @@ func UserHandlerCreate(c *fiber.Ctx) error {
 
 	// mendapatkan yg user masukan
 	newUser := entity.User{
-		Name:    user.Name,
-		Email:   user.Email,
-		Address: user.Address,
-		Phone:   user.Phone,
+		Name:     user.Name,
+		Email:    user.Email,
+		Address:  user.Address,
+		Phone:    user.Phone,
+		UpdateAt: time.Now(),
 	}
 
 	// hashing password
@@ -166,6 +160,7 @@ func UserHandlerUpdate(c *fiber.Ctx) error {
 	}
 	user.Address = userRequest.Address
 	user.Phone = userRequest.Phone
+	user.UpdateAt = time.Now()
 
 	errUpdate := database.DB.Save(&user).Error
 
@@ -262,4 +257,12 @@ func UserHandlerDelete(c *fiber.Ctx) error {
 		"message": "user was deleted",
 	})
 
+}
+
+// cek rest api
+func UserHandlerRead(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"message": "berhasil mendapatkan api",
+		"code":    200,
+	})
 }

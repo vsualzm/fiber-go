@@ -10,6 +10,7 @@ import (
 func RunMigration() {
 	err := database.DB.AutoMigrate(
 		&entity.User{},
+		&entity.Book{},
 	)
 	if err != nil {
 		log.Println(err)

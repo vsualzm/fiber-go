@@ -9,6 +9,7 @@ import (
 func Auth(c *fiber.Ctx) error {
 
 	token := c.Get("x-token")
+
 	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "unatheticated",
